@@ -102,8 +102,8 @@ void got_packet_send(u_char *args, const struct pcap_pkthdr *header, const u_cha
    //we access the fields of the packet to print the relevant data
    //by find where the ip header starts and so on 
 
-   struct ipheader *ip = (struct ipheader *) (packet + 14);
-   struct icmpheader *icmp = (struct icmpheader *) (packet + 14 + sizeof(struct ipheader));
+   struct ipheader *ip = (struct ipheader *) (packet + 16);
+   struct icmpheader *icmp = (struct icmpheader *) (packet + 16 + sizeof(struct ipheader));
     
 
   //we want to sniff only the request packets
@@ -115,9 +115,9 @@ void got_packet_send(u_char *args, const struct pcap_pkthdr *header, const u_cha
 
     //construct the ip
     struct ipheader *newIP = (struct ipheader *) (new_packet + 14);
-    newIP->iph_ver=4;
-    newIP->iph_ihl=5;
-    newIP->iph_ttl=20;
+    newIP->iph_ver=ip->iph_ver;
+    newIP->iph_ihl=ip->iph_ihl;
+    newIP->iph_ttl=ip->iph_ttl;
     newIP->iph_protocol = IPPROTO_ICMP;
     //swapping between the ip source and dest 
     newIP->iph_destip= ip->iph_sourceip; 
@@ -128,6 +128,8 @@ void got_packet_send(u_char *args, const struct pcap_pkthdr *header, const u_cha
     newICMP->icmp_type = 0;
     newICMP->icmp_chksum = 0;
     newICMP->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(icmp));
+    newICMP->id = icmp->id;
+    newICMP->seq = icmp->seq;
 
     send_raw_ip_packet(newIP);
 
@@ -145,7 +147,7 @@ int main()
   bpf_u_int32 net;
 
   // Step 1: Open live pcap session on NIC with name lo
-  handle = pcap_open_live("br-a772632a8d87", BUFSIZ, 1, 1000, errbuf); 
+  handle = pcap_open_live("any", BUFSIZ, 1, 1000, errbuf); 
 
   // Step 2: Compile filter_exp into BPF psuedo-code
   pcap_compile(handle, &fp, filter_exp, 0, net);      
