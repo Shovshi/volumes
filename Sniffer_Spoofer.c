@@ -133,6 +133,10 @@ void got_packet_send(u_char *args, const struct pcap_pkthdr *header, const u_cha
 
     send_raw_ip_packet(newIP);
 
+    printf("SOURCE IP: %s\n", inet_ntoa(newIP->iph_sourceip));
+    printf("DEST IP: %s\n", inet_ntoa(newIP->iph_destip));
+
+
   }
 
   }
