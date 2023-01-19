@@ -114,7 +114,7 @@ void got_packet_send(u_char *args, const struct pcap_pkthdr *header, const u_cha
     memset(new_packet, 0, 1500);
 
     //construct the ip
-    struct ipheader *newIP = (struct ipheader *) (new_packet + 14);
+    struct ipheader *newIP = (struct ipheader *) (new_packet + 16);
     newIP->iph_ver=ip->iph_ver;
     newIP->iph_ihl=ip->iph_ihl;
     newIP->iph_ttl=ip->iph_ttl;
@@ -124,7 +124,7 @@ void got_packet_send(u_char *args, const struct pcap_pkthdr *header, const u_cha
     newIP->iph_sourceip = ip->iph_destip;
     newIP->iph_len = htons(sizeof(struct ipheader) + sizeof(struct icmpheader));
 
-    struct icmpheader *newICMP = (struct icmpheader *) (new_packet + 14 + sizeof(struct ipheader));
+    struct icmpheader *newICMP = (struct icmpheader *) (new_packet + 16 + sizeof(struct ipheader));
     newICMP->icmp_type = 0;
     newICMP->icmp_chksum = 0;
     newICMP->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(icmp));
